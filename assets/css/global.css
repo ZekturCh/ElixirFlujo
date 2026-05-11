@@ -519,3 +519,7 @@ textarea:focus {
   border-color: var(--red);
   background: rgba(176, 0, 0, 0.2);
 }
+.forms-stack {
+  display: grid;
+  gap: 24px;
+}
