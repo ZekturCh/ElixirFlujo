@@ -3,304 +3,73 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Administrador de Clientes</title>
- <style>
-    body {
-      margin: 0;
-      font-family: "Segoe UI", Arial, sans-serif;
-      background: linear-gradient(135deg, #000000, #0a1b3d);
-      color: #e6e6e6;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
 
-    h2 {
-      color: #00bfff;
-      text-align: center;
-      margin-bottom: 10px;
-      text-shadow: 0 0 10px #0077ff;
-    }
+  <title>Lightman Admin | Panel General</title>
 
-    .formulario {
-      background: rgba(25, 40, 70, 0.85);
-      padding: 25px 35px;
-      border-radius: 15px;
-      box-shadow: 0 0 15px rgba(0, 191, 255, 0.2);
-      text-align: center;
-      max-width: 400px;
-      width: 90%;
-      margin-bottom: 30px;
-    }
-
-    .formulario input,
-    .formulario select {
-      width: 90%;
-      padding: 10px;
-      margin: 8px 0;
-      border: 1px solid rgba(255, 255, 255, 0.5);
-      border-radius: 10px;
-      background-color: rgba(255, 255, 255, 0.8);
-      color: #000;
-      font-size: 15px;
-      outline: none;
-      transition: all 0.3s ease;
-    }
-
-    .formulario input:focus,
-    .formulario select:focus {
-      border-color: #33ccff;
-      box-shadow: 0 0 8px #33ccff;
-      background-color: rgba(255, 255, 255, 0.95);
-    }
-
-    .formulario button {
-      margin-top: 10px;
-      background-color: #0077ff;
-      border: none;
-      color: #fff;
-      padding: 10px 20px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 15px;
-      transition: all 0.3s ease;
-    }
-
-    .formulario button:hover {
-      background-color: #00bfff;
-      box-shadow: 0 0 10px #00bfff;
-    }
-
-    table {
-      width: 90%;
-      max-width: 900px;
-      border-collapse: collapse;
-      background: rgba(15, 30, 60, 0.9);
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 0 15px rgba(0, 191, 255, 0.2);
-    }
-
-    th, td {
-      padding: 12px;
-      text-align: center;
-      border-bottom: 1px solid #1e90ff;
-    }
-
-    th {
-      background-color: #0b2a52;
-      color: #00bfff;
-    }
-
-    tr:nth-child(even) {
-      background-color: rgba(0, 0, 0, 0.2);
-    }
-
-    button {
-      background-color: #0077ff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 6px 12px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    button:hover {
-      background-color: #00bfff;
-      box-shadow: 0 0 6px #00bfff;
-    }
-
-    .boton-descargar {
-      margin-top: 15px;
-      background: linear-gradient(90deg, #0077ff, #00bfff);
-      color: #fff;
-      border: none;
-      padding: 10px 25px;
-      border-radius: 12px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .boton-descargar:hover {
-      background: linear-gradient(90deg, #00bfff, #0077ff);
-      box-shadow: 0 0 10px #00bfff;
-    }
-  </style>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-    import {
-      getFirestore,
-      collection,
-      onSnapshot,
-      addDoc,
-      doc,
-      updateDoc,
-      deleteDoc
-    } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAkWPKlXPf-1PoCOPr-WxEeei04JmOYo1w",
-      authDomain: "elixir-a7fe8.firebaseapp.com",
-      projectId: "elixir-a7fe8",
-      storageBucket: "elixir-a7fe8.appspot.com",
-      messagingSenderId: "638327915376",
-      appId: "1:638327915376:web:094d13b75d5c94ac76c5b5",
-      measurementId: "G-Q368B5R9J5",
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    const tablaClientes = document.getElementById("tablaClientes");
-    let clientesCache = [];
-
-    // --- AGREGAR CLIENTE ---
-    window.agregarCliente = async () => {
-      const nombre = document.getElementById("nombre").value;
-      const telefono = document.getElementById("telefono").value;
-      const interes = document.getElementById("interes").value;
-
-      if (!nombre || !telefono) {
-        alert("Por favor completa Nombre y Teléfono.");
-        return;
-      }
-
-      try {
-        await addDoc(collection(db, "clientes"), { nombre, telefono, interes });
-        document.getElementById("nombre").value = "";
-        document.getElementById("telefono").value = "";
-        document.getElementById("interes").value = "urgente";
-      } catch (error) {
-        console.error("Error al agregar cliente:", error);
-      }
-    };
-
-    // --- CARGAR CLIENTES ---
-    const cargarClientes = () => {
-      onSnapshot(collection(db, "clientes"), (snapshot) => {
-        tablaClientes.innerHTML = "";
-        clientesCache = [];
-        let contador = 1;
-        snapshot.forEach((docSnap) => {
-          const cliente = { id: docSnap.id, ...docSnap.data() };
-          clientesCache.push(cliente);
-          const fila = document.createElement("tr");
-          fila.innerHTML = `
-            <td>${contador}</td>
-            <td><input type="text" value="${cliente.nombre}" disabled></td>
-            <td><input type="text" value="${cliente.telefono}" disabled></td>
-            <td>
-              <select disabled>
-                <option value="urgente" ${cliente.interes === "urgente" ? "selected" : ""}>Urgente</option>
-                <option value="poco interesada" ${cliente.interes === "poco interesada" ? "selected" : ""}>Poco interesada</option>
-                <option value="descartado" ${cliente.interes === "descartado" ? "selected" : ""}>Descartado</option>
-              </select>
-            </td>
-            <td>
-              <button onclick="editarCliente(this, '${docSnap.id}')">Editar</button>
-              <button onclick="eliminarCliente('${docSnap.id}')">Eliminar</button>
-            </td>
-          `;
-          tablaClientes.appendChild(fila);
-          contador++;
-        });
-      });
-    };
-
-    // --- EDITAR CLIENTE ---
-    window.editarCliente = async (boton, id) => {
-      const fila = boton.parentNode.parentNode;
-      const inputs = fila.querySelectorAll("input, select");
-      const esEdicion = boton.textContent === "Editar";
-
-      inputs.forEach((input) => (input.disabled = !esEdicion));
-      boton.textContent = esEdicion ? "Guardar" : "Editar";
-      const btnEliminar = fila.querySelector("button:nth-child(2)");
-      btnEliminar.textContent = esEdicion ? "Cancelar" : "Eliminar";
-
-      if (!esEdicion) {
-        try {
-          await updateDoc(doc(db, "clientes", id), {
-            nombre: inputs[0].value,
-            telefono: inputs[1].value,
-            interes: inputs[2].value,
-          });
-        } catch (error) {
-          console.error("Error al actualizar cliente:", error);
-        }
-      }
-    };
-
-    // --- ELIMINAR CLIENTE ---
-    window.eliminarCliente = async (id) => {
-      if (confirm("¿Seguro que deseas eliminar este cliente?")) {
-        try {
-          await deleteDoc(doc(db, "clientes", id));
-        } catch (error) {
-          console.error("Error al eliminar cliente:", error);
-        }
-      }
-    };
-
-    // --- DESCARGAR COMO CSV ---
-    window.descargarExcel = () => {
-      if (clientesCache.length === 0) {
-        alert("No hay clientes para descargar.");
-        return;
-      }
-
-      let csv = "N°;Nombre;Teléfono;Interés\n";
-      clientesCache.forEach((c, i) => {
-        csv += `${i + 1};${c.nombre};${c.telefono};${c.interes}\n`;
-      });
-
-      const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "clientes.csv";
-      link.click();
-    };
-
-    window.onload = cargarClientes;
-  </script>
+  <link rel="stylesheet" href="./assets/css/global.css" />
 </head>
-<header>
-      <a href="productos.html">Registro de productos</a>
-  
-      <a href="cotizador.html">Cotizador</a>
-</header>
 <body>
-  <div class="formulario">
-    <h2>Agregar Cliente</h2>
-    <input type="text" id="nombre" placeholder="Nombre y apellido">
-    <input type="text" id="telefono" placeholder="Teléfono">
-    <select id="interes">
-      <option value="urgente">Urgente</option>
-      <option value="poco interesada">Poco interesada</option>
-      <option value="descartado">Descartado</option>
-    </select>
-    <button onclick="agregarCliente()">Agregar Cliente</button>
-  </div>
 
-  <h2>Lista de Clientes</h2>
-  <table border="1">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Nombre</th>
-        <th>Teléfono</th>
-        <th>Interés</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody id="tablaClientes"></tbody>
-  </table>
+  <div id="app-header"></div>
 
-  <button class="boton-descargar" onclick="descargarExcel()">⬇ Descargar Excel (CSV)</button>
+  <main class="page">
+    <section class="hero-panel">
+      <div>
+        <p class="eyebrow">Sistema administrativo</p>
+        <h1>Lightman Admin</h1>
+        <p class="hero-text">
+          Control de eventos, producción, retorno, inventario y finanzas.
+        </p>
+      </div>
+
+      <div class="hero-status">
+        <span class="status-dot"></span>
+        <span>Entorno inicial activo</span>
+      </div>
+    </section>
+
+    <section class="dashboard-grid">
+
+      <a class="module-card" href="./por-atender.html">
+        <span class="module-label">01</span>
+        <h2>Por Atender</h2>
+        <p>Registro de contactos, eventos nuevos, cotizaciones y anticipos.</p>
+      </a>
+
+      <a class="module-card" href="./produccion.html">
+        <span class="module-label">02</span>
+        <h2>En Producción</h2>
+        <p>Eventos confirmados, checklist de materiales y preparación operativa.</p>
+      </a>
+
+      <a class="module-card" href="./retornando.html">
+        <span class="module-label">03</span>
+        <h2>Retornando</h2>
+        <p>Validación de retorno de trajes, equipos, accesorios y observaciones.</p>
+      </a>
+
+      <a class="module-card" href="./resumen.html">
+        <span class="module-label">04</span>
+        <h2>Resumen</h2>
+        <p>Vista general de eventos activos, pendientes, terminados y alertas.</p>
+      </a>
+
+      <a class="module-card" href="./inventario.html">
+        <span class="module-label">05</span>
+        <h2>Inventario</h2>
+        <p>Control de trajes, artefactos, equipos, precios y categorías.</p>
+      </a>
+
+      <a class="module-card" href="./finanzas.html">
+        <span class="module-label">06</span>
+        <h2>Finanzas</h2>
+        <p>Costos, cobros, pendientes, gastos, utilidad y cierre mensual.</p>
+      </a>
+
+    </section>
+  </main>
+
+  <script type="module" src="./assets/js/layout.js"></script>
+  <script type="module" src="./assets/js/index.js"></script>
 </body>
 </html>
