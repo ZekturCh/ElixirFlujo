@@ -31,94 +31,77 @@
 
     <section class="admin-layout">
 
-      <form id="inventory-form" class="admin-form">
-        <h2>Agregar item</h2>
+     <form id="inventory-form" class="admin-form">
+  <h2>Agregar item</h2>
 
-        <div class="form-grid">
-          <label>
-            Detalle / Nombre
-            <input 
-              type="text" 
-              id="item-nombre" 
-              placeholder="Ej: Traje Tijeras LED"
-              required
-            />
-          </label>
+  <div class="form-grid">
+    <label>
+      Nombre del item
+      <input 
+        type="text" 
+        id="item-nombre" 
+        placeholder="Ej: Batería Stickman"
+        required
+      />
+    </label>
 
-          <label>
-            Categoría
-            <select id="item-categoria" required>
-              <option value="">Seleccionar categoría</option>
-              <option value="Traje LED">Traje LED</option>
-              <option value="Artefacto LED">Artefacto LED</option>
-              <option value="Batería">Batería</option>
-              <option value="Controlador">Controlador</option>
-              <option value="Cableado">Cableado</option>
-              <option value="Equipo técnico">Equipo técnico</option>
-              <option value="Estructura">Estructura</option>
-              <option value="Reparación">Reparación</option>
-              <option value="Otro">Otro</option>
-            </select>
-          </label>
+    <label>
+      Categoría
+      <select id="item-categoria" required>
+        <option value="">Seleccionar categoría</option>
+        <option value="Traje LED">Traje LED</option>
+        <option value="Artefacto LED">Artefacto LED</option>
+        <option value="Batería">Batería</option>
+        <option value="Controlador">Controlador</option>
+        <option value="Cableado">Cableado</option>
+        <option value="Equipo técnico">Equipo técnico</option>
+        <option value="Estructura">Estructura</option>
+        <option value="Repuesto">Repuesto</option>
+        <option value="Consumible">Consumible</option>
+        <option value="Otro">Otro</option>
+      </select>
+    </label>
 
-          <label>
-            Cantidad total
-            <input 
-              type="number" 
-              id="item-cantidad" 
-              min="0" 
-              value="1"
-              required
-            />
-          </label>
+    <label>
+      Cantidad inicial
+      <input 
+        type="number" 
+        id="item-cantidad" 
+        min="0" 
+        value="1"
+        required
+      />
+    </label>
 
-          <label>
-            ¿Tiene precio propio?
-            <select id="item-tiene-precio">
-              <option value="si">Sí, se cobra por separado</option>
-              <option value="no">No, va incluido en otro item</option>
-            </select>
-          </label>
+    <label>
+      Precio de renta
+      <input 
+        type="number" 
+        id="item-precio-renta" 
+        min="0" 
+        step="0.01"
+        value="0"
+      />
+    </label>
 
-          <label>
-            Precio de renta normal
-            <input 
-              type="number" 
-              id="item-precio-renta" 
-              min="0" 
-              step="0.01"
-              value="0"
-            />
-          </label>
+    <label>
+      Precio preferencial
+      <input 
+        type="number" 
+        id="item-precio-preferencial" 
+        min="0" 
+        step="0.01"
+        value="0"
+      />
+    </label>
+  </div>
 
-          <label>
-            Precio preferencial
-            <input 
-              type="number" 
-              id="item-precio-preferencial" 
-              min="0" 
-              step="0.01"
-              value="0"
-            />
-          </label>
-        </div>
+  <button type="submit" class="primary-btn">
+    Guardar en inventario
+  </button>
 
-        <label>
-          Observaciones
-          <textarea 
-            id="item-observaciones" 
-            rows="3"
-            placeholder="Ej: Las baterías van incluidas dentro del precio del traje."
-          ></textarea>
-        </label>
-
-        <button type="submit" class="primary-btn">
-          Guardar en inventario
-        </button>
-
-        <p id="form-message" class="form-message"></p>
-      </form>
-
+  <p id="form-message" class="form-message"></p>
+</form>
       <section class="admin-list">
         <div class="section-head">
           <div>
