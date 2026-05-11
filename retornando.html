@@ -13,6 +13,7 @@
   <div id="app-header"></div>
 
   <main class="page">
+
     <section class="hero-panel">
       <div>
         <p class="eyebrow">Módulo operativo</p>
@@ -20,16 +21,42 @@
         <p class="hero-text">
           Validación de retorno de equipos, trajes, baterías, controladores y accesorios.
         </p>
+      </div>
 
-        <div id="firebase-status" class="firebase-status">
-          <span class="status-dot warning"></span>
-          <span>Conectando con Firebase...</span>
-        </div>
+      <div class="hero-status">
+        <span class="status-dot"></span>
+        <span id="return-count">Cargando retornos...</span>
       </div>
     </section>
+
+    <section class="admin-list full-list">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Retorno</p>
+          <h2>Eventos pendientes de retorno</h2>
+        </div>
+      </div>
+
+      <div id="return-list" class="cards-list production-grid">
+        <p class="empty-text">Cargando eventos...</p>
+      </div>
+    </section>
+
   </main>
 
+  <div id="return-overlay" class="overlay hidden">
+    <div class="overlay-panel">
+
+      <button id="close-return-overlay" class="close-btn">×</button>
+
+      <div id="return-overlay-content">
+        <p class="empty-text">Cargando detalle...</p>
+      </div>
+
+    </div>
+  </div>
+
   <script type="module" src="./assets/js/layout.js"></script>
-  <script type="module" src="./assets/js/firebase-test.js"></script>
+  <script type="module" src="./assets/js/retornando.js"></script>
 </body>
 </html>
