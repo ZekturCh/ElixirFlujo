@@ -40,9 +40,30 @@ if (headerContainer) {
       </nav>
 
       <div class="user-chip">
-        <span class="user-dot"></span>
-        <span id="user-role-label">Admin</span>
-      </div>
+      <span class="user-dot"></span>
+      <span id="user-role-label">Cargando...</span>
+      <button id="logout-btn" class="logout-btn">Salir</button>
+    </div>
     </header>
   `;
+}
+const userRoleLabel = document.getElementById("user-role-label");
+const logoutBtn = document.getElementById("logout-btn");
+
+onAuthStateChanged(auth, (user) => {
+  if (userRoleLabel) {
+    userRoleLabel.textContent = user ? user.email : "Sin sesión";
+  }
+});
+
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", async () => {
+    try {
+      await signOut(auth);
+      window.location.href = "./login.html";
+    } catch (error) {
+      console.error("Error cerrando sesión:", error);
+      alert("No se pudo cerrar sesión.");
+    }
+  });
 }
