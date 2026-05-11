@@ -13,6 +13,7 @@
   <div id="app-header"></div>
 
   <main class="page">
+
     <section class="hero-panel">
       <div>
         <p class="eyebrow">Módulo operativo</p>
@@ -20,16 +21,176 @@
         <p class="hero-text">
           Registro de contactos, eventos nuevos, cotizaciones, anticipos y eventos por confirmar.
         </p>
+      </div>
 
-        <div id="firebase-status" class="firebase-status">
-          <span class="status-dot warning"></span>
-          <span>Conectando con Firebase...</span>
-        </div>
+      <div class="hero-status">
+        <span class="status-dot"></span>
+        <span id="events-count">Cargando eventos...</span>
       </div>
     </section>
+
+    <section class="admin-layout">
+
+      <div class="forms-stack">
+
+        <form id="contact-form" class="admin-form">
+          <h2>Agregar contacto</h2>
+
+          <label>
+            Nombre
+            <input 
+              type="text" 
+              id="contacto-nombre" 
+              placeholder="Ej: Agencia ABC / Cliente directo"
+              required
+            />
+          </label>
+
+          <label>
+            Tipo de cliente
+            <select id="contacto-tipo" required>
+              <option value="">Seleccionar tipo</option>
+              <option value="Directo">Directo</option>
+              <option value="Proveedor">Proveedor</option>
+            </select>
+          </label>
+
+          <label>
+            Teléfono
+            <input 
+              type="tel" 
+              id="contacto-telefono" 
+              placeholder="Opcional"
+            />
+          </label>
+
+          <button type="submit" class="primary-btn">
+            Guardar contacto
+          </button>
+
+          <p id="contact-message" class="form-message"></p>
+        </form>
+
+        <form id="event-form" class="admin-form">
+          <h2>Agregar evento</h2>
+
+          <label>
+            Contacto
+            <select id="evento-contacto" required>
+              <option value="">Cargando contactos...</option>
+            </select>
+          </label>
+
+          <div class="form-grid">
+            <label>
+              Fecha de evento
+              <input 
+                type="date" 
+                id="evento-fecha" 
+                required
+              />
+            </label>
+
+            <label>
+              Hora de show
+              <input 
+                type="time" 
+                id="evento-hora" 
+              />
+            </label>
+          </div>
+
+          <label>
+            Ubicación
+            <input 
+              type="text" 
+              id="evento-ubicacion" 
+              placeholder="Ej: Centro de Convenciones, Jockey, local del cliente..."
+            />
+          </label>
+
+          <div class="form-grid">
+            <label>
+              Tipo de servicio
+              <select id="evento-tipo-servicio" required>
+                <option value="">Seleccionar servicio</option>
+                <option value="Show Syncro">Show Syncro</option>
+                <option value="Estructura">Estructura</option>
+                <option value="Reparaciones">Reparaciones</option>
+                <option value="Renta">Renta</option>
+                <option value="Show">Show</option>
+              </select>
+            </label>
+
+            <label>
+              Estado de evento
+              <select id="evento-estado" required>
+                <option value="Por Cotizar">Por Cotizar</option>
+                <option value="Cotizado">Cotizado</option>
+                <option value="Ya dio anticipo">Ya dio anticipo</option>
+                <option value="No va">No va</option>
+              </select>
+            </label>
+          </div>
+
+          <label>
+            Detalle de servicio
+            <input 
+              type="text" 
+              id="evento-detalle" 
+              placeholder="Ej: Tijeras LED x 5 / Renta de 3 trajes Tron / Reparación de casco"
+            />
+          </label>
+
+          <div class="form-grid">
+            <label>
+              Costo total
+              <input 
+                type="number" 
+                id="evento-costo" 
+                min="0" 
+                step="0.01"
+                value="0"
+              />
+            </label>
+
+            <label>
+              Encargado
+              <input 
+                type="text" 
+                id="evento-encargado" 
+                placeholder="Ej: Fernando / Katy / Producción"
+              />
+            </label>
+          </div>
+
+          <button type="submit" class="primary-btn">
+            Guardar evento
+          </button>
+
+          <p id="event-message" class="form-message"></p>
+        </form>
+
+      </div>
+
+      <section class="admin-list">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Lista</p>
+            <h2>Eventos registrados</h2>
+          </div>
+        </div>
+
+        <div id="events-list" class="cards-list">
+          <p class="empty-text">Cargando eventos...</p>
+        </div>
+      </section>
+
+    </section>
+
   </main>
 
   <script type="module" src="./assets/js/layout.js"></script>
-  <script type="module" src="./assets/js/firebase-test.js"></script>
+  <script type="module" src="./assets/js/por-atender.js"></script>
 </body>
 </html>
