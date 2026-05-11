@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Contactos | Lightman Admin</title>
+
+  <link rel="stylesheet" href="./assets/css/global.css" />
+</head>
+<body>
+
+  <div id="app-header"></div>
+
+  <main class="page">
+
+    <section class="hero-panel">
+      <div>
+        <p class="eyebrow">Base de datos</p>
+        <h1>Contactos</h1>
+        <p class="hero-text">
+          Lista general de clientes directos, proveedores, agencias y contactos registrados.
+        </p>
+      </div>
+
+      <div class="hero-status">
+        <span class="status-dot"></span>
+        <span id="contacts-count">Cargando contactos...</span>
+      </div>
+    </section>
+
+    <section class="admin-list full-list">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Directorio</p>
+          <h2>Contactos registrados</h2>
+        </div>
+      </div>
+
+      <div id="contacts-list" class="cards-list production-grid">
+        <p class="empty-text">Cargando contactos...</p>
+      </div>
+    </section>
+
+  </main>
+
+  <script type="module" src="./assets/js/layout.js"></script>
+  <script type="module" src="./assets/js/contactos.js"></script>
+</body>
+</html>
