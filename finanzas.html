@@ -13,6 +13,7 @@
   <div id="app-header"></div>
 
   <main class="page">
+
     <section class="hero-panel">
       <div>
         <p class="eyebrow">Control financiero</p>
@@ -20,16 +21,46 @@
         <p class="hero-text">
           Costos, cobros, pendientes, gastos, utilidad, estado de evento y cierre mensual.
         </p>
+      </div>
 
-        <div id="firebase-status" class="firebase-status">
-          <span class="status-dot warning"></span>
-          <span>Conectando con Firebase...</span>
-        </div>
+      <div class="hero-status">
+        <span class="status-dot"></span>
+        <span id="finance-status">Cargando finanzas...</span>
       </div>
     </section>
+
+    <section class="summary-grid" id="finance-summary">
+      <p class="empty-text">Cargando indicadores...</p>
+    </section>
+
+    <section class="admin-list full-list">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Eventos</p>
+          <h2>Finanzas por evento</h2>
+        </div>
+      </div>
+
+      <div id="finance-list" class="cards-list production-grid">
+        <p class="empty-text">Cargando eventos...</p>
+      </div>
+    </section>
+
   </main>
 
+  <div id="finance-overlay" class="overlay hidden">
+    <div class="overlay-panel">
+
+      <button id="close-finance-overlay" class="close-btn">×</button>
+
+      <div id="finance-overlay-content">
+        <p class="empty-text">Cargando detalle...</p>
+      </div>
+
+    </div>
+  </div>
+
   <script type="module" src="./assets/js/layout.js"></script>
-  <script type="module" src="./assets/js/firebase-test.js"></script>
+  <script type="module" src="./assets/js/finanzas.js"></script>
 </body>
 </html>
