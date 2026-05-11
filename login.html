@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Login | Lightman Admin</title>
+
+  <link rel="stylesheet" href="./assets/css/global.css" />
+</head>
+<body>
+
+  <main class="login-page">
+    <section class="login-card">
+      <div class="login-brand">
+        <span class="brand-mark">L</span>
+        <div>
+          <strong>Lightman</strong>
+          <small>Admin Panel</small>
+        </div>
+      </div>
+
+      <div class="login-copy">
+        <p class="eyebrow">Acceso privado</p>
+        <h1>Iniciar sesión</h1>
+        <p>
+          Ingresa con el usuario creado en Firebase Authentication.
+        </p>
+      </div>
+
+      <form id="login-form" class="login-form">
+        <label>
+          Correo
+          <input 
+            type="email" 
+            id="login-email" 
+            placeholder="usuario@lightman.com"
+            required
+          />
+        </label>
+
+        <label>
+          Contraseña
+          <input 
+            type="password" 
+            id="login-password" 
+            placeholder="Marron1234"
+            required
+          />
+        </label>
+
+        <button type="submit" class="primary-btn">
+          Entrar
+        </button>
+
+        <p id="login-message" class="form-message"></p>
+      </form>
+    </section>
+  </main>
+
+  <script type="module" src="./assets/js/login.js"></script>
+</body>
+</html>
