@@ -13,23 +13,55 @@
   <div id="app-header"></div>
 
   <main class="page">
+
     <section class="hero-panel">
       <div>
         <p class="eyebrow">Panel general</p>
         <h1>Resumen</h1>
         <p class="hero-text">
-          Vista general de eventos activos, pendientes, terminados, alertas e indicadores.
+          Vista general de eventos, producción, retornos, inventario y finanzas.
         </p>
+      </div>
 
-        <div id="firebase-status" class="firebase-status">
-          <span class="status-dot warning"></span>
-          <span>Conectando con Firebase...</span>
-        </div>
+      <div class="hero-status">
+        <span class="status-dot"></span>
+        <span id="summary-status">Cargando resumen...</span>
       </div>
     </section>
+
+    <section class="summary-grid" id="summary-grid">
+      <p class="empty-text">Cargando indicadores...</p>
+    </section>
+
+    <section class="admin-list full-list">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Agenda</p>
+          <h2>Próximos eventos</h2>
+        </div>
+      </div>
+
+      <div id="next-events-list" class="cards-list production-grid">
+        <p class="empty-text">Cargando eventos...</p>
+      </div>
+    </section>
+
+    <section class="admin-list full-list">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Alertas</p>
+          <h2>Inventario bajo</h2>
+        </div>
+      </div>
+
+      <div id="stock-alerts-list" class="cards-list production-grid">
+        <p class="empty-text">Cargando inventario...</p>
+      </div>
+    </section>
+
   </main>
 
   <script type="module" src="./assets/js/layout.js"></script>
-  <script type="module" src="./assets/js/firebase-test.js"></script>
+  <script type="module" src="./assets/js/resumen.js"></script>
 </body>
 </html>
