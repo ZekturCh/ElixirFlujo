@@ -13,6 +13,7 @@
   <div id="app-header"></div>
 
   <main class="page">
+
     <section class="hero-panel">
       <div>
         <p class="eyebrow">Módulo operativo</p>
@@ -20,16 +21,42 @@
         <p class="hero-text">
           Eventos cotizados o con anticipo, checklist de materiales y preparación para show.
         </p>
+      </div>
 
-        <div id="firebase-status" class="firebase-status">
-          <span class="status-dot warning"></span>
-          <span>Conectando con Firebase...</span>
-        </div>
+      <div class="hero-status">
+        <span class="status-dot"></span>
+        <span id="production-count">Cargando producción...</span>
       </div>
     </section>
+
+    <section class="admin-list full-list">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Agenda</p>
+          <h2>Eventos en producción</h2>
+        </div>
+      </div>
+
+      <div id="production-list" class="cards-list production-grid">
+        <p class="empty-text">Cargando eventos...</p>
+      </div>
+    </section>
+
   </main>
 
+  <div id="production-overlay" class="overlay hidden">
+    <div class="overlay-panel">
+
+      <button id="close-overlay" class="close-btn">×</button>
+
+      <div id="overlay-content">
+        <p class="empty-text">Cargando detalle...</p>
+      </div>
+
+    </div>
+  </div>
+
   <script type="module" src="./assets/js/layout.js"></script>
-  <script type="module" src="./assets/js/firebase-test.js"></script>
+  <script type="module" src="./assets/js/produccion.js"></script>
 </body>
 </html>
