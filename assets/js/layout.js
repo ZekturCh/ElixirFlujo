@@ -56,7 +56,7 @@ onAuthStateChanged(auth, (user) => {
       <div class="user-chip">
         <span class="user-dot"></span>
         <span id="user-role-label">
-          ${user ? user.email : "Sin sesión"} · ${role}
+          ${user ? user.email : "Sin sesión"} · ${role === "basic" ? "marronazo neto" : "admin"}
         </span>
         <button id="logout-btn" class="logout-btn">Salir</button>
       </div>
