@@ -101,14 +101,23 @@
           </div>
 
           <label>
-            Ubicación
+            Ubicación / Nombre del lugar
             <input 
               type="text" 
               id="evento-ubicacion" 
-              placeholder="Ej: Centro de Convenciones, Jockey, local del cliente..."
+              placeholder="Ej: Jockey Plaza, Centro de Convenciones, local del cliente..."
             />
           </label>
-
+          
+          <label>
+            Link de Google Maps
+            <input 
+              type="url" 
+              id="evento-maps-link" 
+              placeholder="Opcional: pega aquí el link de Google Maps"
+            />
+          </label>
+          
           <div class="form-grid">
             <label>
               Tipo de servicio
@@ -191,13 +200,6 @@
   </main>
 <script type="module" src="./assets/js/auth-guard.js"></script>
 <script type="module" src="./assets/js/layout.js"></script>
-
-<script
-  src="https://maps.googleapis.com/maps/api/js?key=TU_GOOGLE_MAPS_API_KEY&libraries=places&callback=initGooglePlaces"
-  async
-  defer>
-</script>
-
 <script type="module" src="./assets/js/por-atender.js"></script>
 </body>
 </html>
