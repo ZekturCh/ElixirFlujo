@@ -925,3 +925,27 @@ textarea:focus {
 .logout-btn:hover {
   background: var(--red);
 }
+
+.location-preview {
+  margin: -6px 0 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.location-preview:empty {
+  display: none;
+}
+
+.location-preview strong {
+  color: var(--text);
+}
+
+.location-preview a {
+  color: #ffb3b3;
+  text-decoration: underline;
+}
