@@ -1,6 +1,9 @@
-// assets/js/produccion.js
+import { db, auth } from "./firebase-config.js";
+import { isBasic } from "./roles.js";
 
-import { db } from "./firebase-config.js";
+import {
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
   collection,
@@ -25,6 +28,8 @@ const inventarioRef = collection(db, "inventario");
 let eventosCache = [];
 let inventarioCache = [];
 let selectedEvento = null;
+let currentUser = null;
+let userIsBasic = false;
 
 const estadosProduccionVisibles = [
   "Cotizado",
@@ -237,35 +242,41 @@ function renderOverlay() {
       </div>
     </section>
 
-    <section class="material-add-box">
-      <h3>Agregar material desde inventario</h3>
+    ${
+  userIsBasic
+    ? ""
+    : `
+      <section class="material-add-box">
+        <h3>Agregar material desde inventario</h3>
 
-      <div class="material-add-grid">
-        <select id="material-select">
-          <option value="">Seleccionar item</option>
-          ${inventarioCache
-            .map((item) => {
-              return `
-                <option value="${item.id}">
-                  ${item.nombre} | Disponible: ${item.cantidadDisponible ?? 0}
-                </option>
-              `;
-            })
-            .join("")}
-        </select>
+        <div class="material-add-grid">
+          <select id="material-select">
+            <option value="">Seleccionar item</option>
+            ${inventarioCache
+              .map((item) => {
+                return `
+                  <option value="${item.id}">
+                    ${item.nombre} | Disponible: ${item.cantidadDisponible ?? 0}
+                  </option>
+                `;
+              })
+              .join("")}
+          </select>
 
-        <input 
-          type="number" 
-          id="material-qty" 
-          min="1" 
-          value="1"
-        />
+          <input 
+            type="number" 
+            id="material-qty" 
+            min="1" 
+            value="1"
+          />
 
-        <button id="add-material-btn" class="primary-btn">
-          Agregar
-        </button>
-      </div>
-    </section>
+          <button id="add-material-btn" class="primary-btn">
+            Agregar
+          </button>
+        </div>
+      </section>
+    `
+}
 
     <section class="checklist-box">
       <div class="section-head">
@@ -288,9 +299,11 @@ function renderOverlay() {
       </button>
     </section>
   `;
+const addMaterialBtn = document.getElementById("add-material-btn");
 
-  document.getElementById("add-material-btn").addEventListener("click", addMaterialToEvento);
-
+if (addMaterialBtn && !userIsBasic) {
+  addMaterialBtn.addEventListener("click", addMaterialToEvento);
+}
   document.querySelectorAll("[data-action='toggle-material']").forEach((checkbox) => {
     checkbox.addEventListener("change", async () => {
       const index = Number(checkbox.dataset.index);
@@ -341,13 +354,19 @@ function renderMateriales(materiales) {
             </span>
           </label>
 
-          <button 
-            class="mini-danger-btn" 
-            data-action="remove-material"
-            data-index="${index}"
-          >
-            Quitar
-          </button>
+          ${
+              userIsBasic
+                ? ""
+                : `
+                  <button 
+                    class="mini-danger-btn" 
+                    data-action="remove-material"
+                    data-index="${index}"
+                  >
+                    Quitar
+                  </button>
+                `
+            }
         </article>
       `;
     })
@@ -513,4 +532,9 @@ function formatDate(dateString) {
   return `${day}/${month}/${year}`;
 }
 
-init();
+onAuthStateChanged(auth, async (user) => {
+  currentUser = user;
+  userIsBasic = isBasic(user);
+
+  await init();
+});
