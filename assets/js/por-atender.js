@@ -21,12 +21,24 @@ const contactoSelect = document.getElementById("evento-contacto");
 const eventsList = document.getElementById("events-list");
 const eventsCount = document.getElementById("events-count");
 
+const fechaInput = document.getElementById("evento-fecha");
+
 const contactosRef = collection(db, "contactos");
 const eventosRef = collection(db, "eventos");
 
 let contactosCache = [];
 let eventosCache = [];
 
+/* Abre el calendario al hacer click en el input de fecha */
+if (fechaInput) {
+  fechaInput.addEventListener("click", () => {
+    if (typeof fechaInput.showPicker === "function") {
+      fechaInput.showPicker();
+    }
+  });
+}
+
+/* Guardar contacto */
 contactForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
@@ -59,15 +71,8 @@ contactForm.addEventListener("submit", async (event) => {
     showMessage(contactMessage, "No se pudo guardar el contacto.", "error");
   }
 });
-const fechaInput = document.getElementById("evento-fecha");
 
-if (fechaInput) {
-  fechaInput.addEventListener("click", () => {
-    if (typeof fechaInput.showPicker === "function") {
-      fechaInput.showPicker();
-    }
-  });
-}
+/* Guardar evento */
 eventForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
@@ -77,72 +82,12 @@ eventForm.addEventListener("submit", async (event) => {
   const fechaEvento = document.getElementById("evento-fecha").value;
   const horaShow = document.getElementById("evento-hora").value;
   const ubicacion = document.getElementById("evento-ubicacion").value.trim();
-  const ubicacionNombre = ubicacionNombreInput.value.trim();
-  const ubicacionDireccion = ubicacionDireccionInput.value.trim();
-  const ubicacionPlaceId = ubicacionPlaceIdInput.value.trim();
-  const ubicacionMapsUrl = ubicacionMapsUrlInput.value.trim();
-  const ubicacionLat = ubicacionLatInput.value.trim();
-  const ubicacionLng = ubicacionLngInput.value.trim();
+  const ubicacionMapsUrl = document.getElementById("evento-maps-link").value.trim();
   const tipoServicio = document.getElementById("evento-tipo-servicio").value;
   const detalleServicio = document.getElementById("evento-detalle").value.trim();
   const estadoEvento = document.getElementById("evento-estado").value;
   const costoTotal = Number(document.getElementById("evento-costo").value);
   const encargado = document.getElementById("evento-encargado").value.trim();
-
-  const ubicacionInput = document.getElementById("evento-ubicacion");
-const ubicacionNombreInput = document.getElementById("evento-ubicacion-nombre");
-const ubicacionDireccionInput = document.getElementById("evento-ubicacion-direccion");
-const ubicacionPlaceIdInput = document.getElementById("evento-ubicacion-place-id");
-const ubicacionMapsUrlInput = document.getElementById("evento-ubicacion-maps-url");
-const ubicacionLatInput = document.getElementById("evento-ubicacion-lat");
-const ubicacionLngInput = document.getElementById("evento-ubicacion-lng");
-const ubicacionPreview = document.getElementById("ubicacion-preview");
-
-window.initGooglePlaces = function () {
-  if (!ubicacionInput || !window.google || !google.maps || !google.maps.places) {
-    console.warn("Google Places no está disponible.");
-    return;
-  }
-
-  const autocomplete = new google.maps.places.Autocomplete(ubicacionInput, {
-    componentRestrictions: { country: "pe" },
-    fields: [
-      "name",
-      "formatted_address",
-      "place_id",
-      "geometry",
-      "url"
-    ]
-  });
-
-  autocomplete.addListener("place_changed", () => {
-    const place = autocomplete.getPlace();
-
-    if (!place || !place.place_id) {
-      return;
-    }
-
-    const lat = place.geometry?.location?.lat?.() || "";
-    const lng = place.geometry?.location?.lng?.() || "";
-
-    const mapsUrl = place.url || `https://www.google.com/maps/search/?api=1&query=${lat},${lng}&query_place_id=${place.place_id}`;
-
-    ubicacionNombreInput.value = place.name || "";
-    ubicacionDireccionInput.value = place.formatted_address || ubicacionInput.value || "";
-    ubicacionPlaceIdInput.value = place.place_id || "";
-    ubicacionMapsUrlInput.value = mapsUrl;
-    ubicacionLatInput.value = lat;
-    ubicacionLngInput.value = lng;
-
-    ubicacionPreview.innerHTML = `
-      Lugar seleccionado: <strong>${place.name || "Ubicación"}</strong><br>
-      <span>${place.formatted_address || ""}</span><br>
-      <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer">
-        Abrir en Google Maps
-      </a>
-    `;
-  });
-};
 
   if (!contacto || !fechaEvento || !tipoServicio || !estadoEvento) {
     showMessage(eventMessage, "Completa contacto, fecha, servicio y estado.", "error");
@@ -155,7 +100,10 @@ window.initGooglePlaces = function () {
     contactoId,
     contactoNombre: contacto.nombre,
     contactoTipoCliente: contacto.tipoCliente,
+
     ubicacion,
+    ubicacionMapsUrl,
+
     fechaEvento,
     mesEvento,
     horaShow,
@@ -164,13 +112,6 @@ window.initGooglePlaces = function () {
     costoTotal,
     encargado,
     estadoEvento,
-    ubicacion,
-    ubicacionNombre,
-    ubicacionDireccion,
-    ubicacionPlaceId,
-    ubicacionMapsUrl,
-    ubicacionLat,
-    ubicacionLng,
 
     // Estados internos para siguientes módulos
     estadoProduccion: "Pendiente",
@@ -185,16 +126,7 @@ window.initGooglePlaces = function () {
     await addDoc(eventosRef, nuevoEvento);
 
     eventForm.reset();
-      ubicacionNombreInput.value = "";
-      ubicacionDireccionInput.value = "";
-      ubicacionPlaceIdInput.value = "";
-      ubicacionMapsUrlInput.value = "";
-      ubicacionLatInput.value = "";
-      ubicacionLngInput.value = "";
-      
-      if (ubicacionPreview) {
-        ubicacionPreview.innerHTML = "";
-      }
+
     showMessage(eventMessage, "Evento guardado correctamente.", "success");
 
     await loadEventos();
@@ -204,6 +136,7 @@ window.initGooglePlaces = function () {
   }
 });
 
+/* Cargar contactos */
 async function loadContactos() {
   contactoSelect.innerHTML = `<option value="">Cargando contactos...</option>`;
 
@@ -227,6 +160,7 @@ async function loadContactos() {
   }
 }
 
+/* Mostrar contactos en el select */
 function renderContactos() {
   if (contactosCache.length === 0) {
     contactoSelect.innerHTML = `<option value="">Primero agrega un contacto</option>`;
@@ -247,6 +181,7 @@ function renderContactos() {
   `;
 }
 
+/* Cargar eventos */
 async function loadEventos() {
   eventsList.innerHTML = `<p class="empty-text">Cargando eventos...</p>`;
 
@@ -276,6 +211,7 @@ async function loadEventos() {
   }
 }
 
+/* Mostrar eventos */
 function renderEventos() {
   if (eventosCache.length === 0) {
     eventsList.innerHTML = `<p class="empty-text">Todavía no hay eventos registrados.</p>`;
@@ -326,6 +262,11 @@ function renderEventos() {
 
       <p class="card-note">
         Ubicación: ${evento.ubicacion || "Sin ubicación"}
+        ${
+          evento.ubicacionMapsUrl
+            ? `<br><a class="text-link" href="${evento.ubicacionMapsUrl}" target="_blank" rel="noopener noreferrer">Abrir en Google Maps</a>`
+            : ""
+        }
       </p>
 
       <p class="card-note">
@@ -337,6 +278,7 @@ function renderEventos() {
   });
 }
 
+/* Formatear fecha */
 function formatDate(dateString) {
   if (!dateString) return "—";
 
@@ -344,6 +286,7 @@ function formatDate(dateString) {
   return `${day}/${month}/${year}`;
 }
 
+/* Mensajes de formulario */
 function showMessage(element, text, type = "success") {
   element.textContent = text;
   element.className = `form-message ${type}`;
