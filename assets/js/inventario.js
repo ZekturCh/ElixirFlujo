@@ -1,6 +1,11 @@
 // assets/js/inventario.js
 
-import { db } from "./firebase-config.js";
+import { db, auth } from "./firebase-config.js";
+import { isBasic } from "./roles.js";
+
+import {
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
   collection,
@@ -23,6 +28,8 @@ const inventarioRef = collection(db, "inventario");
 const movimientosRef = collection(db, "movimientosInventario");
 
 let inventarioCache = [];
+let currentUser = null;
+let userIsBasic = false;
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -153,6 +160,14 @@ function renderInventory() {
         }
       </div>
 
+      ${
+  userIsBasic
+    ? `
+      <p class="card-note">
+        Puedes agregar nuevos items desde el formulario. Los movimientos de stock los registra un admin.
+      </p>
+    `
+    : `
       <div class="movement-box">
         <h4>Movimiento</h4>
 
@@ -183,11 +198,14 @@ function renderInventory() {
           Registrar movimiento
         </button>
       </div>
+    `
+}
     `;
 
     list.appendChild(card);
   });
 
+  if (!userIsBasic) {
   const movementButtons = document.querySelectorAll("[data-action='movement']");
 
   movementButtons.forEach((button) => {
@@ -196,6 +214,7 @@ function renderInventory() {
       await registrarMovimiento(itemId);
     });
   });
+}
 }
 
 async function registrarMovimiento(itemId) {
@@ -299,4 +318,9 @@ function showMessage(text, type = "success") {
   }, 3500);
 }
 
-loadInventory();
+onAuthStateChanged(auth, async (user) => {
+  currentUser = user;
+  userIsBasic = isBasic(user);
+
+  await loadInventory();
+});
