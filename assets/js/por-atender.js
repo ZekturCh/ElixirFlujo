@@ -59,7 +59,15 @@ contactForm.addEventListener("submit", async (event) => {
     showMessage(contactMessage, "No se pudo guardar el contacto.", "error");
   }
 });
+const fechaInput = document.getElementById("evento-fecha");
 
+if (fechaInput) {
+  fechaInput.addEventListener("click", () => {
+    if (typeof fechaInput.showPicker === "function") {
+      fechaInput.showPicker();
+    }
+  });
+}
 eventForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
@@ -69,11 +77,72 @@ eventForm.addEventListener("submit", async (event) => {
   const fechaEvento = document.getElementById("evento-fecha").value;
   const horaShow = document.getElementById("evento-hora").value;
   const ubicacion = document.getElementById("evento-ubicacion").value.trim();
+  const ubicacionNombre = ubicacionNombreInput.value.trim();
+  const ubicacionDireccion = ubicacionDireccionInput.value.trim();
+  const ubicacionPlaceId = ubicacionPlaceIdInput.value.trim();
+  const ubicacionMapsUrl = ubicacionMapsUrlInput.value.trim();
+  const ubicacionLat = ubicacionLatInput.value.trim();
+  const ubicacionLng = ubicacionLngInput.value.trim();
   const tipoServicio = document.getElementById("evento-tipo-servicio").value;
   const detalleServicio = document.getElementById("evento-detalle").value.trim();
   const estadoEvento = document.getElementById("evento-estado").value;
   const costoTotal = Number(document.getElementById("evento-costo").value);
   const encargado = document.getElementById("evento-encargado").value.trim();
+
+  const ubicacionInput = document.getElementById("evento-ubicacion");
+const ubicacionNombreInput = document.getElementById("evento-ubicacion-nombre");
+const ubicacionDireccionInput = document.getElementById("evento-ubicacion-direccion");
+const ubicacionPlaceIdInput = document.getElementById("evento-ubicacion-place-id");
+const ubicacionMapsUrlInput = document.getElementById("evento-ubicacion-maps-url");
+const ubicacionLatInput = document.getElementById("evento-ubicacion-lat");
+const ubicacionLngInput = document.getElementById("evento-ubicacion-lng");
+const ubicacionPreview = document.getElementById("ubicacion-preview");
+
+window.initGooglePlaces = function () {
+  if (!ubicacionInput || !window.google || !google.maps || !google.maps.places) {
+    console.warn("Google Places no está disponible.");
+    return;
+  }
+
+  const autocomplete = new google.maps.places.Autocomplete(ubicacionInput, {
+    componentRestrictions: { country: "pe" },
+    fields: [
+      "name",
+      "formatted_address",
+      "place_id",
+      "geometry",
+      "url"
+    ]
+  });
+
+  autocomplete.addListener("place_changed", () => {
+    const place = autocomplete.getPlace();
+
+    if (!place || !place.place_id) {
+      return;
+    }
+
+    const lat = place.geometry?.location?.lat?.() || "";
+    const lng = place.geometry?.location?.lng?.() || "";
+
+    const mapsUrl = place.url || `https://www.google.com/maps/search/?api=1&query=${lat},${lng}&query_place_id=${place.place_id}`;
+
+    ubicacionNombreInput.value = place.name || "";
+    ubicacionDireccionInput.value = place.formatted_address || ubicacionInput.value || "";
+    ubicacionPlaceIdInput.value = place.place_id || "";
+    ubicacionMapsUrlInput.value = mapsUrl;
+    ubicacionLatInput.value = lat;
+    ubicacionLngInput.value = lng;
+
+    ubicacionPreview.innerHTML = `
+      Lugar seleccionado: <strong>${place.name || "Ubicación"}</strong><br>
+      <span>${place.formatted_address || ""}</span><br>
+      <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer">
+        Abrir en Google Maps
+      </a>
+    `;
+  });
+};
 
   if (!contacto || !fechaEvento || !tipoServicio || !estadoEvento) {
     showMessage(eventMessage, "Completa contacto, fecha, servicio y estado.", "error");
@@ -95,6 +164,13 @@ eventForm.addEventListener("submit", async (event) => {
     costoTotal,
     encargado,
     estadoEvento,
+    ubicacion,
+    ubicacionNombre,
+    ubicacionDireccion,
+    ubicacionPlaceId,
+    ubicacionMapsUrl,
+    ubicacionLat,
+    ubicacionLng,
 
     // Estados internos para siguientes módulos
     estadoProduccion: "Pendiente",
@@ -109,6 +185,16 @@ eventForm.addEventListener("submit", async (event) => {
     await addDoc(eventosRef, nuevoEvento);
 
     eventForm.reset();
+      ubicacionNombreInput.value = "";
+      ubicacionDireccionInput.value = "";
+      ubicacionPlaceIdInput.value = "";
+      ubicacionMapsUrlInput.value = "";
+      ubicacionLatInput.value = "";
+      ubicacionLngInput.value = "";
+      
+      if (ubicacionPreview) {
+        ubicacionPreview.innerHTML = "";
+      }
     showMessage(eventMessage, "Evento guardado correctamente.", "success");
 
     await loadEventos();
