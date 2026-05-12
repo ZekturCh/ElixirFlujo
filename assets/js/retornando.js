@@ -1,6 +1,11 @@
 // assets/js/retornando.js
 
-import { db } from "./firebase-config.js";
+import { db, auth } from "./firebase-config.js";
+import { isBasic } from "./roles.js";
+
+import {
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
   collection,
@@ -23,14 +28,20 @@ const eventosRef = collection(db, "eventos");
 
 let eventosRetornoCache = [];
 let selectedEvento = null;
+let currentUser = null;
+let userIsBasic = false;
 
-closeOverlayBtn.addEventListener("click", closeOverlay);
+if (closeOverlayBtn) {
+  closeOverlayBtn.addEventListener("click", closeOverlay);
+}
 
-overlay.addEventListener("click", (event) => {
-  if (event.target === overlay) {
-    closeOverlay();
-  }
-});
+if (overlay) {
+  overlay.addEventListener("click", (event) => {
+    if (event.target === overlay) {
+      closeOverlay();
+    }
+  });
+}
 
 async function init() {
   await loadEventosRetorno();
@@ -92,11 +103,14 @@ function renderEventosRetorno() {
   eventosRetornoCache.forEach((evento) => {
     const materiales = evento.materialesProduccion || [];
     const totalMateriales = materiales.length;
-    const materialesRetornados = materiales.filter((item) => item.estadoRetornoItem === "Retornado").length;
-    const materialesConProblema = materiales.filter((item) =>
-      item.estadoRetornoItem === "Faltante" ||
-      item.estadoRetornoItem === "Dañado"
-    ).length;
+
+    const materialesRetornados = materiales.filter((item) => {
+      return item.estadoRetornoItem === "Retornado";
+    }).length;
+
+    const materialesConProblema = materiales.filter((item) => {
+      return item.estadoRetornoItem === "Faltante" || item.estadoRetornoItem === "Dañado";
+    }).length;
 
     const card = document.createElement("article");
     card.className = "data-card clickable-card";
@@ -137,10 +151,15 @@ function renderEventosRetorno() {
 
       <p class="card-note">
         Ubicación: ${evento.ubicacion || "Sin ubicación"}
+        ${
+          evento.ubicacionMapsUrl
+            ? `<br><a class="text-link" href="${evento.ubicacionMapsUrl}" target="_blank" rel="noopener noreferrer">Abrir en Google Maps</a>`
+            : ""
+        }
       </p>
 
       <button class="secondary-btn" data-action="open-return" data-id="${evento.id}">
-        Revisar retorno
+        ${userIsBasic ? "Ver retorno" : "Revisar retorno"}
       </button>
     `;
 
@@ -176,10 +195,9 @@ function renderOverlay() {
     materiales.length > 0 &&
     materiales.every((item) => item.estadoRetornoItem);
 
-  const hayProblemas = materiales.some((item) =>
-    item.estadoRetornoItem === "Faltante" ||
-    item.estadoRetornoItem === "Dañado"
-  );
+  const hayProblemas = materiales.some((item) => {
+    return item.estadoRetornoItem === "Faltante" || item.estadoRetornoItem === "Dañado";
+  });
 
   overlayContent.innerHTML = `
     <div class="overlay-head">
@@ -220,6 +238,11 @@ function renderOverlay() {
       <div>
         <small>Ubicación</small>
         <strong>${selectedEvento.ubicacion || "—"}</strong>
+        ${
+          selectedEvento.ubicacionMapsUrl
+            ? `<br><a class="text-link" href="${selectedEvento.ubicacionMapsUrl}" target="_blank" rel="noopener noreferrer">Abrir Maps</a>`
+            : ""
+        }
       </div>
 
       <div>
@@ -240,39 +263,53 @@ function renderOverlay() {
         ${renderMaterialesRetorno(materiales)}
       </div>
 
-      <button 
-        id="confirm-return-btn" 
-        class="primary-btn ${todosRevisados ? "" : "disabled-btn"}"
-        ${todosRevisados ? "" : "disabled"}
-      >
-        Confirmar retorno y cerrar evento
-      </button>
+      ${
+        userIsBasic
+          ? `
+            <p class="card-note">
+              Modo visualización: solo un supervisor puede validar y cerrar retorno.
+            </p>
+          `
+          : `
+            <button 
+              id="confirm-return-btn" 
+              class="primary-btn ${todosRevisados ? "" : "disabled-btn"}"
+              ${todosRevisados ? "" : "disabled"}
+            >
+              Confirmar retorno y cerrar evento
+            </button>
 
-      <p class="card-note">
-        Para cerrar el evento, todos los materiales deben tener estado de retorno.
-      </p>
+            <p class="card-note">
+              Para cerrar el evento, todos los materiales deben tener estado de retorno.
+            </p>
+          `
+      }
     </section>
   `;
 
-  document.querySelectorAll("[data-action='return-status']").forEach((select) => {
-    select.addEventListener("change", async () => {
-      const index = Number(select.dataset.index);
-      await updateMaterialReturnStatus(index, select.value);
+  if (!userIsBasic) {
+    document.querySelectorAll("[data-action='return-status']").forEach((select) => {
+      select.addEventListener("change", async () => {
+        const index = Number(select.dataset.index);
+        await updateMaterialReturnStatus(index, select.value);
+      });
     });
-  });
 
-  document.querySelectorAll("[data-action='return-note']").forEach((input) => {
-    input.addEventListener("change", async () => {
-      const index = Number(input.dataset.index);
-      await updateMaterialReturnNote(index, input.value.trim());
+    document.querySelectorAll("[data-action='return-note']").forEach((input) => {
+      input.addEventListener("change", async () => {
+        const index = Number(input.dataset.index);
+        await updateMaterialReturnNote(index, input.value.trim());
+      });
     });
-  });
 
-  const confirmReturnBtn = document.getElementById("confirm-return-btn");
+    const confirmReturnBtn = document.getElementById("confirm-return-btn");
 
-  confirmReturnBtn.addEventListener("click", async () => {
-    await confirmReturnAndCloseEvent();
-  });
+    if (confirmReturnBtn) {
+      confirmReturnBtn.addEventListener("click", async () => {
+        await confirmReturnAndCloseEvent();
+      });
+    }
+  }
 }
 
 function renderMaterialesRetorno(materiales) {
@@ -297,22 +334,34 @@ function renderMaterialesRetorno(materiales) {
             </small>
           </div>
 
-          <div class="return-controls">
-            <select data-action="return-status" data-index="${index}">
-              <option value="" ${estado === "" ? "selected" : ""}>Pendiente</option>
-              <option value="Retornado" ${estado === "Retornado" ? "selected" : ""}>Retornado</option>
-              <option value="Faltante" ${estado === "Faltante" ? "selected" : ""}>Faltante</option>
-              <option value="Dañado" ${estado === "Dañado" ? "selected" : ""}>Dañado</option>
-            </select>
+          ${
+            userIsBasic
+              ? `
+                <div class="return-controls">
+                  <span class="pill">
+                    ${estado || "Pendiente"}
+                  </span>
+                </div>
+              `
+              : `
+                <div class="return-controls">
+                  <select data-action="return-status" data-index="${index}">
+                    <option value="" ${estado === "" ? "selected" : ""}>Pendiente</option>
+                    <option value="Retornado" ${estado === "Retornado" ? "selected" : ""}>Retornado</option>
+                    <option value="Faltante" ${estado === "Faltante" ? "selected" : ""}>Faltante</option>
+                    <option value="Dañado" ${estado === "Dañado" ? "selected" : ""}>Dañado</option>
+                  </select>
 
-            <input
-              type="text"
-              placeholder="Nota opcional"
-              value="${material.notaRetorno || ""}"
-              data-action="return-note"
-              data-index="${index}"
-            />
-          </div>
+                  <input
+                    type="text"
+                    placeholder="Nota opcional"
+                    value="${material.notaRetorno || ""}"
+                    data-action="return-note"
+                    data-index="${index}"
+                  />
+                </div>
+              `
+          }
         </article>
       `;
     })
@@ -383,10 +432,9 @@ async function confirmReturnAndCloseEvent() {
     return;
   }
 
-  const hayProblemas = materiales.some((item) =>
-    item.estadoRetornoItem === "Faltante" ||
-    item.estadoRetornoItem === "Dañado"
-  );
+  const hayProblemas = materiales.some((item) => {
+    return item.estadoRetornoItem === "Faltante" || item.estadoRetornoItem === "Dañado";
+  });
 
   const mensaje = hayProblemas
     ? "Hay materiales faltantes o dañados. ¿Igual deseas cerrar el evento?"
@@ -429,4 +477,9 @@ function formatDate(dateString) {
   return `${day}/${month}/${year}`;
 }
 
-init();
+onAuthStateChanged(auth, async (user) => {
+  currentUser = user;
+  userIsBasic = isBasic(user);
+
+  await init();
+});
